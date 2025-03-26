@@ -42,14 +42,26 @@ This Jenkins pipeline automates the process of fetching, building, testing, and 
 | -------------------- | ------------------------------------------------------- |
 | `GIT_CREDENTIALS_ID` | Jenkins credential ID for accessing private GitHub repositories. |
 | `MODEL_DIR`          | Directory where the model files will be stored.        |
-| `SCRIPT_REPO`        | GitHub repository URL for the AIBOM script.            |
+| `SCRIPT_REPO`        | GitHub repository URL for fetching AIBOM script (change as per requirement). |
 | `REPORT_DIR`         | Directory where reports will be stored.                |
 | `TOOLS_DIR`          | Directory for storing installed security tools.        |
 
+## 📂 **Model Directory Structure**
+
+The model directory must contain the following essential files:
+
+```
+MODEL_DIR/
+├── dataset.json       # Dataset file required for the model
+├── model_info.json    # Model metadata and configurations
+```
+
 ## 🚀 **Running the Pipeline**
 
-To execute the pipeline:
+### **Prerequisites**
+Before running the pipeline, ensure that **Python or Python3** is installed on the system.
 
+### **Execution Steps**
 1. Configure the `MODEL_GIT_URL` or `MODEL_LOCAL_PATH` as parameters.
 2. Run the pipeline from Jenkins.
 3. Monitor the console output for errors or warnings.
@@ -74,18 +86,8 @@ To execute the pipeline:
 - If the pipeline succeeds, review the generated reports.
 - Take necessary actions based on security scan results before promoting the model.
 
-After running the script, the expected directory structure is:
-
-/path/to/your/model/
-│── reports/
-│ ├── aibom.json
-│ ├── sbom.json
-│ ├── vulnerability_report.json
-│── other_model_files/
-
-
-
 ### Notes:
 
 Ensure that the provided model directory contains valid model files before running the script.
 The LOCAL_PATH environment variable must be set for successful execution
+----
