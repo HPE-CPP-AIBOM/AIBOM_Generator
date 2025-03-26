@@ -88,6 +88,6 @@ Before running the pipeline, ensure that **Python or Python3** is installed on t
 
 ### Notes:
 
-Ensure that the provided model directory contains valid model files before running the script.
-The LOCAL_PATH environment variable must be set for successful execution
-----
+- Ensure that the provided model directory contains valid model files before running the script.
+- The LOCAL_PATH environment variable must be set for successful execution
+
