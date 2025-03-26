@@ -4,7 +4,7 @@ pipeline {
     environment {
         GIT_CREDENTIALS_ID = 'gihub-credentials'
         MODEL_DIR = 'F:/HPE_Project/Model'
-        SCRIPT_REPO = 'https://github.com/Thejashwini005/AIBOM_Project.git'
+        SCRIPT_REPO = 'https://github.com/HPE-CPP-AIBOM/AIBOM_Generator.git'
         REPORT_DIR = "${MODEL_DIR}/reports"
         TOOLS_DIR = "${MODEL_DIR}/tools"
     }
@@ -76,7 +76,7 @@ pipeline {
                     '''
                     
                     echo "🛠️ Running AIBOM script..."
-                    sh "python ${MODEL_DIR}/generate_aibom.py --model-path ${MODEL_DIR}"
+                    sh "python3 ${MODEL_DIR}/generate_aibom.py --model-path ${MODEL_DIR}"
                     
                     // Ensure report directory exists
                     sh "mkdir -p ${REPORT_DIR}"
@@ -96,7 +96,7 @@ pipeline {
 
                     if (vulnExists) {
                         def vulnReport = readFile(vulnReportPath)
-                        if (vulnReport.contains("HIGH") || vulnReport.contains("CRITICAL")) {
+                        if (vulnReport.contains("HIGH") || vulnReport.contains("CRITICAL") || vulnReport.contains("LOW") || vulnReport.contains("MEDIUM")) {
                             echo "⚠️ WARNING: Model has vulnerabilities! Not ready for production."
                         } else {
                             echo "✅ Model passes security checks."
