@@ -1,22 +1,19 @@
-# AIBOM_Generator
+# CI/CD Pipeline for AI BOM Generator
 
-AIBOM Generation Tool
-
-Overview
-
-The AIBOM (AI Bill of Materials) Generation Tool automates the process of generating:
-
+This Jenkins pipeline automates the process of generating:
 AIBOM (AI Bill of Materials)
-
 SBOM (Software Bill of Materials)
-
 Vulnerability Report
-
 
 This tool is designed to work with various AI models by allowing users to provide their own model directory. It ensures flexibility by keeping model dependencies separate from the tool itself. Additionally, the tool integrates security scanning using Syft and Trivy to detect vulnerabilities.
 
+## Setup & Configuration
 
----
+### Pipeline Parameters
+| Parameter        | Default Value | Description |
+|------------------|---------------|-------------|
+|MODEL_GIT_URL     |"" (empty)     | GitHub repository URL for fetching the model.  |
+| MODEL_LOCAL_PATH | "" (empty)    | Local path to fetch the model. |
 
 Installation
 
