@@ -1,118 +1,78 @@
-# AIBOM_Generator
+# CI/CD Pipeline for AI BOM Generator
 
-AIBOM Generation Tool
+This Jenkins pipeline automates the process of fetching, building, testing, and promoting an AI-based Bill of Materials (AIBOM) model. The pipeline ensures that the model is properly validated, tested, and checked for security vulnerabilities before deployment.
 
-Overview
+## 📌 Pipeline Stages
 
-The AIBOM (AI Bill of Materials) Generation Tool automates the process of generating:
+### 1️⃣ **Build**
 
-AIBOM (AI Bill of Materials)
+- Cleans the existing model directory.
+- Fetches the model from either a GitHub repository or a local path.
+- Ensures essential files (`dataset.json` and `model_info.json`) exist.
 
-SBOM (Software Bill of Materials)
+### 2️⃣ **Deploy**
 
-Vulnerability Report
+- Fetches the AIBOM script from the predefined repository.
+- Copies the necessary script (`generate_aibom.py`) into the model directory.
 
+### 3️⃣ **Test**
 
-This tool is designed to work with various AI models by allowing users to provide their own model directory. It ensures flexibility by keeping model dependencies separate from the tool itself. Additionally, the tool integrates security scanning using Syft and Trivy to detect vulnerabilities.
+- Installs security tools (**Syft** and **Trivy**) for Software Bill of Materials (SBOM) and vulnerability scanning.
+- Runs the AIBOM script to generate reports.
+- Ensures that the reports directory is created.
 
+### 4️⃣ **Promote**
 
----
+- Validates the generated reports (`aibom.json`, `sbom.json`, `vulnerability.json`).
+- Checks for security vulnerabilities in the `vulnerability.json` file.
+- Displays the generated reports.
 
-Installation
+## 🔧 **Setup & Configuration**
 
-1. Install General Dependencies
+### **Pipeline Parameters**
 
-Before running the script, install the required dependencies:
+| Parameter          | Default Value | Description                                   |
+| ------------------ | ------------- | --------------------------------------------- |
+| `MODEL_GIT_URL`    | `""` (empty)  | GitHub repository URL for fetching the model. |
+| `MODEL_LOCAL_PATH` | `""` (empty)  | Local path to fetch the model.                |
 
-pip install numpy pandas json5
+### **Environment Variables**
 
-2. Install Security Tools
+| Variable             | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| `GIT_CREDENTIALS_ID` | Jenkins credential ID for accessing private GitHub repositories. |
+| `MODEL_DIR`          | Directory where the model files will be stored.        |
+| `SCRIPT_REPO`        | GitHub repository URL for the AIBOM script.            |
+| `REPORT_DIR`         | Directory where reports will be stored.                |
+| `TOOLS_DIR`          | Directory for storing installed security tools.        |
 
-The script requires Syft and Trivy for SBOM and vulnerability analysis. Install them using:
+## 🚀 **Running the Pipeline**
 
-pip install syft
+To execute the pipeline:
 
-Download and install Trivy from the official source:
-Trivy Installation Guide
+1. Configure the `MODEL_GIT_URL` or `MODEL_LOCAL_PATH` as parameters.
+2. Run the pipeline from Jenkins.
+3. Monitor the console output for errors or warnings.
 
-3. Install Model-Specific Dependencies
+## ✅ **Success Criteria**
 
-Since different AI models have unique requirements, install dependencies based on your model type:
+- Model is successfully fetched.
+- Required files exist in the model directory.
+- Security tools are installed and executed without errors.
+- Vulnerability scan shows no critical issues.
+- Reports are successfully generated in the `reports/` directory.
 
-For PyTorch-based models (e.g., GPT-2, BERT, LLaMA):
+## ⚠️ **Failure Scenarios**
 
-pip install torch transformers
+- Missing model files (`dataset.json` or `model_info.json`).
+- Pipeline fails due to security vulnerabilities in the model.
+- Reports not generated properly.
 
-For TensorFlow-based models:
+## 📝 **Post-Pipeline Execution**
 
-pip install tensorflow
-
-For other models: Refer to the official documentation and install the necessary libraries.
-
-
-
----
-
-Usage
-
-Command to Run the Script
-
-Execute the script by providing the model directory path:
-
-python generate_aibom.py --model-path /path/to/your/model
-
-Example
-
-If the AI model is stored in /home/user/models/gpt-2, use:
-
-python generate_aibom.py --model-path /home/user/models/gpt-2
-
-The script will analyze the model directory, extract dependencies, and generate corresponding reports.
-
-
----
-
-Output
-
-Upon successful execution, the script will generate three reports inside the reports/ directory:
-
-aibom.json – AI Bill of Materials
-
-sbom.json – Software Bill of Materials
-
-vulnerability_report.json – Security vulnerabilities detected
-
-
-If vulnerabilities are found in vulnerability_report.json, the script will display:
-
-⚠️ WARNING: Model has vulnerabilities! Not ready for production. ⚠️
-
-If no vulnerabilities are found, it will display:
-
-✅ Model passes security checks.
-
-
----
-
-Handling Environment Variables
-
-The script requires environment variables for correct execution:
-
-LOCAL_PATH – Must be set before running the script.
-
-
-Ensure it is defined in your shell session:
-
-export LOCAL_PATH=/path/to/your/local/directory
-
-For Windows (PowerShell):
-
-$env:LOCAL_PATH="C:\path\to\your\local\directory"
-
-
----
-
-Directory Structure
+- If the pipeline fails, check the logs for errors.
+- If the pipeline succeeds, review the generated reports.
+- Take necessary actions based on security scan results before promoting the model.
 
 After running the script, the expected directory structure is:
 
@@ -124,19 +84,8 @@ After running the script, the expected directory structure is:
 │── other_model_files/
 
 
----
 
-License
-
-This project is open-source. Feel free to use, modify, and contribute!
-
-
----
-
-Notes:
-
-This script does not include model-specific dependencies; users must install them separately.
+### Notes:
 
 Ensure that the provided model directory contains valid model files before running the script.
-
 The LOCAL_PATH environment variable must be set for successful execution
