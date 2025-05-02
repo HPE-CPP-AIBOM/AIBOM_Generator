@@ -4,7 +4,7 @@ pipeline {
     environment {
         GIT_CREDENTIALS_ID = 'gihub-credentials'
         MODEL_DIR = 'F:/HPE_Project/Model'
-        SCRIPT_REPO = 'https://github.com/HPE-CPP-AIBOM/AIBOM_Generator.git'
+        SCRIPT_REPO = 'https://github.com/Thejashwini005/AIBOM_Project.git'
         REPORT_DIR = "${MODEL_DIR}/reports"
         TOOLS_DIR = "${MODEL_DIR}/tools"
     }
@@ -32,7 +32,7 @@ pipeline {
                     def datasetExists = fileExists("${MODEL_DIR}/dataset.json")
                     def model_infoExists = fileExists("${MODEL_DIR}/model_info.json")
                     if(!datasetExists || !model_infoExists){
-                        error "Pipeline failed due to missing files"
+                        error "Pipeline failed"
                     }
 
                     echo "✅ Build stage completed."
@@ -46,6 +46,7 @@ pipeline {
                     echo "📥 Fetching AIBOM script..."
                     sh "git clone ${SCRIPT_REPO} ${MODEL_DIR}/script"
                     sh "cp ${MODEL_DIR}/script/generate_aibom.py ${MODEL_DIR}/"
+
                     echo "✅ Deploy stage completed."
                 }
             }
@@ -74,9 +75,14 @@ pipeline {
                         which syft || echo "Syft not found!"
                         which trivy || echo "Trivy not found!"
                     '''
+
+                    sh '''
+                        pip install streamlit
+                    '''
+
                     
                     echo "🛠️ Running AIBOM script..."
-                    sh "python3 ${MODEL_DIR}/generate_aibom.py --model-path ${MODEL_DIR}"
+                    sh "python ${MODEL_DIR}/generate_aibom.py --model-path ${MODEL_DIR}"
                     
                     // Ensure report directory exists
                     sh "mkdir -p ${REPORT_DIR}"
@@ -96,7 +102,7 @@ pipeline {
 
                     if (vulnExists) {
                         def vulnReport = readFile(vulnReportPath)
-                        if (vulnReport.contains("HIGH") || vulnReport.contains("CRITICAL") || vulnReport.contains("LOW") || vulnReport.contains("MEDIUM")) {
+                        if (vulnReport.contains("LOW") || vulnReport.contains("MEDIUM") || vulnReport.contains("HIGH") || vulnReport.contains("CRITICAL")) {
                             echo "⚠️ WARNING: Model has vulnerabilities! Not ready for production."
                         } else {
                             echo "✅ Model passes security checks."
@@ -113,6 +119,21 @@ pipeline {
                 }
             }
         }
+
+        stage('CVSS & CWE Dashboard') {
+            steps {
+                script {
+                    echo "📊 Launching CVSS & CWE Dashboard using Streamlit..."
+
+                    sh '''
+                        nohup streamlit run ${MODEL_DIR}/script/cvss.py -- --input ${REPORT_DIR}/vulnerability.json --server.headless true --server.port 8501 --server.enableCORS false > streamlit.log 2>&1 &
+                        sleep 5
+                        echo "✅ Streamlit dashboard launched at: http://localhost:8501"
+                    '''
+                }
+            }
+        }
+
     }
 
     post {
