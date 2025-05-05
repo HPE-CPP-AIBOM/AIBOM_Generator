@@ -7,24 +7,61 @@ from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import subprocess
+import os
 
 # -------------------------
 # 📥 Extract for Dashboard
 # -------------------------
+
+def get_git_introduction_date(pkg, version):
+    try:
+        pattern = f"{pkg}=={version}"
+        current_file = os.path.abspath(__file__)
+
+# Get the directory containing the file
+        current_dir = os.path.dirname(current_file)
+
+        # Get the parent directory
+        parent_dir = os.path.dirname(current_dir)
+        requirements_path = os.path.join(current_dir, 'requirements.txt')
+        cmd = ['git', 'log', '-S', pattern, '--pretty=format:%cs', '--', requirements_path]
+        result = subprocess.check_output(cmd, stderr=subprocess.PIPE).decode().splitlines()
+        
+        if result:
+            print(f"Found introduction date for {pkg}=={version}: {result[-1]}")
+            return result[-1]  # Return the oldest commit date
+        else:
+            print(f"No commit found for {pkg}=={version} in {requirements_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing git log: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+    return None
+
+
 def extract_vulnerability_data(file):
     raw_data = json.load(file)
     output = []
 
     for result in raw_data.get("Results", []):
         for vuln in result.get("Vulnerabilities", []):
+            pkg = vuln.get("PkgName", "")
+            version = vuln.get("InstalledVersion", "")
+            introduced_date = get_git_introduction_date(pkg, version)
+
             entry = {
                 "id": vuln.get("VulnerabilityID", ""),
+                "pkg": pkg,
+                "version": version,
                 "cvss": vuln.get("CVSS", {}).get("ghsa", {}).get("V3Score", ""),
                 "publishedDate": vuln.get("PublishedDate", "")[:10],
-                "cwe": vuln.get("CweIDs", [""])[0] if vuln.get("CweIDs") else ""
+                "cwe": vuln.get("CweIDs", [""])[0] if vuln.get("CweIDs") else "",
+                "introducedDate": introduced_date
             }
             output.append(entry)
     return output
+
 
 # -------------------------
 # 📥 Extract for Email
@@ -50,6 +87,7 @@ def extract_email_data(file):
 def preprocess_data(df):
     df['publishedDate'] = pd.to_datetime(df['publishedDate'], errors='coerce')
     df['cvss'] = pd.to_numeric(df['cvss'], errors='coerce')  # Convert CVSS to float
+    df["introducedDate"] = pd.to_datetime(df["introducedDate"], errors="coerce")
     df['Year'] = df['publishedDate'].dt.year
     df['Month'] = df['publishedDate'].dt.to_period('M')
     return df
