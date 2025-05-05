@@ -4,12 +4,13 @@ import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
-from io import StringIO
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-# Set seaborn style
-sns.set(style="whitegrid")
-
-# Function to filter and extract relevant vulnerability data
+# -------------------------
+# 📥 Extract for Dashboard
+# -------------------------
 def extract_vulnerability_data(file):
     raw_data = json.load(file)
     output = []
@@ -23,10 +24,29 @@ def extract_vulnerability_data(file):
                 "cwe": vuln.get("CweIDs", [""])[0] if vuln.get("CweIDs") else ""
             }
             output.append(entry)
-
     return output
 
-# Preprocessing the data for plotting
+# -------------------------
+# 📥 Extract for Email
+# -------------------------
+def extract_email_data(file):
+    file.seek(0)
+    raw_data = json.load(file)
+    output = []
+
+    for result in raw_data.get("Results", []):
+        for vuln in result.get("Vulnerabilities", []):
+            entry = {
+                "id": vuln.get("VulnerabilityID", ""),
+                "description": vuln.get("Description", "No description provided."),
+                "installed_version": vuln.get("InstalledVersion", "N/A"),
+                "fixed_version": vuln.get("FixedVersion", "N/A"),
+                "cvss": vuln.get("CVSS", {}).get("nvd", {}).get("V3Score", 0),
+                "suggestion": vuln.get("PrimaryURL", "Please check the advisory for more details.")
+            }
+            output.append(entry)
+    return output
+
 def preprocess_data(df):
     df['publishedDate'] = pd.to_datetime(df['publishedDate'], errors='coerce')
     df['cvss'] = pd.to_numeric(df['cvss'], errors='coerce')  # Convert CVSS to float
@@ -34,22 +54,76 @@ def preprocess_data(df):
     df['Month'] = df['publishedDate'].dt.to_period('M')
     return df
 
-# Streamlit dashboard
-def main():
-    st.title("🛡️ CVE Risk Prioritization Dashboard")
-    st.write("Upload a `vulnerabilities.json` file. We’ll filter it and instantly show you trends and severity insights ")
+# -------------------------
+# 📧 Email Report
+# -------------------------
+def send_email(receiver_email, top_vulns):
+    EMAIL_ADDRESS = "aibomgenerator@gmail.com"
+    EMAIL_PASSWORD = "yawj eczy bcje aovh"
 
-    uploaded_file = st.file_uploader("Upload vulnerabilities.json", type="json")
+    subject = "🚨 Detailed Vulnerability Report (Top 5 by CVSS)"
+
+    body = "Hi there,\n\nHere are the top 5 critical vulnerabilities:\n\n"
+    for idx, row in top_vulns.iterrows():
+        body += f"""🔐 Vulnerability ID: {row['id']}
+📄 Description: {row['description']}
+📦 Installed Version: {row['installed_version']}
+🛠️ Fixed Version: {row['fixed_version']}
+📊 CVSS Score: {row['cvss']}
+💡 Suggestion: {row['suggestion']}
+
+"""
+
+    body += "Stay Secure,\nYour AIBOM Framework 💻"
+
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = receiver_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"❌ Email sending failed: {e}")
+        return False
+
+# -------------------------
+# 🚀 Streamlit App
+# -------------------------
+def main():
+    st.title("🛡️ CVE Dashboard + Vulnerability Email Report")
+    st.write("Upload your `vulnerabilities.json` to view filtered CVEs and receive an email summary.")
+
+    uploaded_file = st.file_uploader("📂 Upload JSON File", type="json")
 
     if uploaded_file:
-        # Step 1: Filter and create intermediate data
+        # Dashboard display
         filtered_data = extract_vulnerability_data(uploaded_file)
 
-        # Save filtered data locally (optional)
         with open("filtered_vulnerabilities.json", "w") as outfile:
             json.dump(filtered_data, outfile, indent=2)
 
         st.success("✅ Filtered vulnerabilities saved as filtered_vulnerabilities.json")
+
+        # Email preparation
+
+        email_data = extract_email_data(uploaded_file)
+        df_email = pd.DataFrame(email_data)
+        df_email['cvss'] = pd.to_numeric(df_email['cvss'], errors='coerce')
+        top5 = df_email.sort_values(by="cvss", ascending=False).head(5)
+
+        st.subheader("📧 Enter your email to receive full vulnerability report")
+        user_email = st.text_input("Email Address")
+
+        if user_email and st.button("Send Email Report"):
+            if send_email(user_email, top5):
+                st.success("💌 Email sent successfully!")
+            else:
+                st.error("❌ Email failed to send. Please check credentials or network.")
 
         # Step 2: Load into DataFrame
         df = pd.DataFrame(filtered_data)
@@ -106,6 +180,9 @@ def main():
         plt.ylabel("CWE")
         plt.title("Top 10 Common Software Weaknesses (CWEs)")
         st.pyplot(plt.gcf())
+
+
+        
 
 if __name__ == "__main__":
     main()
