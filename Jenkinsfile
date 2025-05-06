@@ -124,9 +124,9 @@ pipeline {
             steps {
                 script {
                     echo "📊 Launching CVSS & CWE Dashboard using Streamlit..."
-
+                    sh "cp ${MODEL_DIR}/script/cvss.py ${MODEL_DIR}/"
+                    
                     sh '''
-                        sh "cp -r \"${MODEL_DIR}/script/cvss.py\" \"${MODEL_DIR}\""
                         nohup streamlit run ${MODEL_DIR}/cvss.py -- --input ${REPORT_DIR}/vulnerability.json --server.headless true --server.port 8501 --server.enableCORS false > streamlit.log 2>&1 &
                         sleep 5
                         echo "✅ Streamlit dashboard launched at: http://localhost:8501"
