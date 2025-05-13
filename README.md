@@ -1,93 +1,143 @@
-# CI/CD Pipeline for AI BOM Generator
+**CI/CD Pipeline for AI BOM Generator**
+This Jenkins CI/CD pipeline automates the complete lifecycle of an **AI-based Bill of Materials (AIBOM)** generation framework. It ensures that AI models are securely fetched, validated, scanned for vulnerabilities, and documented using AIBOM and SBOM reports.
 
-This Jenkins pipeline automates the process of fetching, building, testing, and promoting an AI-based Bill of Materials (AIBOM) model. The pipeline ensures that the model is properly validated, tested, and checked for security vulnerabilities before deployment.
+It adheres to DevSecOps best practices, enhancing security, traceability, and transparency throughout the AI model lifecycle.
 
-## 📌 Pipeline Stages
+**Pipeline Overview**
 
-### 1️⃣ **Build**
+**Pipeline Stages **
 
-- Cleans the existing model directory.
-- Fetches the model from either a GitHub repository or a local path.
-- Ensures essential files (`dataset.json` and `model_info.json`) exist.
+**1. Build Stage**
+Cleans the working model directory (MODEL_DIR) to avoid leftover data.
 
-### 2️⃣ **Deploy**
+Fetches the AI model from either:
 
-- Fetches the AIBOM script from the predefined repository.
-- Copies the necessary script (`generate_aibom.py`) into the model directory.
+A GitHub repository (MODEL_GIT_URL), or
 
-### 3️⃣ **Test**
+A specified local path (MODEL_LOCAL_PATH).
 
-- Installs security tools (**Syft** and **Trivy**) for Software Bill of Materials (SBOM) and vulnerability scanning.
-- Runs the AIBOM script to generate reports.
-- Ensures that the reports directory is created.
+Verifies the presence of required files:
 
-### 4️⃣ **Promote**
+dataset.json — dataset metadata.
 
-- Validates the generated reports (`aibom.json`, `sbom.json`, `vulnerability.json`).
-- Checks for security vulnerabilities in the `vulnerability.json` file.
-- Displays the generated reports.
+model_info.json — AI model details, training specs, and configurations.
 
-## 🔧 **Setup & Configuration**
+**2️. Deploy Stage**
+Clones the AIBOM generation script from the specified script repository (SCRIPT_REPO).
 
-### **Pipeline Parameters**
+Copy the script generate_aibom.py into the model directory for execution.
 
-| Parameter          | Default Value | Description                                   |
-| ------------------ | ------------- | --------------------------------------------- |
-| `MODEL_GIT_URL`    | `""` (empty)  | GitHub repository URL for fetching the model. |
-| `MODEL_LOCAL_PATH` | `""` (empty)  | Local path to fetch the model.                |
+**3️. Test Stage**
+Installs Syft to generate SBOM (Software Bill of Materials).
 
-### **Environment Variables**
+Installs Trivy for scanning vulnerabilities.
 
-| Variable             | Description                                             |
-| -------------------- | ------------------------------------------------------- |
-| `GIT_CREDENTIALS_ID` | Jenkins credential ID for accessing private GitHub repositories. |
-| `MODEL_DIR`          | Directory where the model files will be stored.        |
-| `SCRIPT_REPO`        | GitHub repository URL for fetching AIBOM script (change as per requirement). |
-| `REPORT_DIR`         | Directory where reports will be stored.                |
-| `TOOLS_DIR`          | Directory for storing installed security tools.        |
+Executes the AIBOM generation script, which performs:
 
-## 📂 **Model Directory Structure**
+AIBOM report generation (aibom.json)
 
-The model directory must contain the following essential files:
+SBOM report creation (sbom.json)
 
-```
+Vulnerability analysis (vulnerability_requirements.json and vulnerability_sbom.json)
+
+Merging of vulnerabilities into merged_vulnerabilities.json
+
+Ensures the reports/ folder is created and populated.
+
+**4️. Promote Stage**
+Validates the presence and format of reports.
+
+Parses vulnerability data to ensure no critical issues are present.
+
+Displays generated reports in the Jenkins console for review.
+
+
+
+**Setup & Configuration**
+
+
+**Pipeline Parameters**
+
+Parameter	Default Value	Description
+
+MODEL_GIT_URL	""	    GitHub URL to fetch the model repository.
+MODEL_LOCAL_PATH	""	Local directory path containing model files.
+
+Provide either MODEL_GIT_URL or MODEL_LOCAL_PATH—not both.
+
+**Environment Variables**
+
+Variable	Description
+GIT_CREDENTIALS_ID:  Jenkins credentials for accessing private GitHub repositories.
+MODEL_DIR:           Working directory for downloaded or copied model files.
+SCRIPT_REPO:	       Repository URL containing generate_aibom.py.
+REPORT_DIR:	         Output directory for all reports.
+TOOLS_DIR:	         Directory for Syft and Trivy installations.
+USER_EMAIL:          Email ID to receive vulnerability alerts via the Streamlit dashboard.
+
+**Required Directory Structure**
+
+The MODEL_DIR must contain:
+
+
 MODEL_DIR/
-├── dataset.json       # Dataset file required for the model
-├── model_info.json    # Model metadata and configurations
-```
+├── dataset.json              # Dataset metadata
+├── model_info.json           # AI model specifications
+├── generate_aibom.py         # (Automatically copied during Deploy stage)
 
-## 🚀 **Running the Pipeline**
 
-### **Prerequisites**
-Before running the pipeline, ensure that **Python or Python3** is installed on the system.
+**How to Run the Pipeline**
 
-### **Execution Steps**
-1. Configure the `MODEL_GIT_URL` or `MODEL_LOCAL_PATH` as parameters.
-2. Run the pipeline from Jenkins.
-3. Monitor the console output for errors or warnings.
+**Prerequisites**
+Jenkins and Python 3.x are installed on the agent machine.
 
-## ✅ **Success Criteria**
+Internet access is required to install tools and clone repositories.
 
-- Model is successfully fetched.
-- Required files exist in the model directory.
-- Security tools are installed and executed without errors.
-- Vulnerability scan shows no critical issues.
-- Reports are successfully generated in the `reports/` directory.
+Environment variables and parameters are properly configured.
 
-## ⚠️ **Failure Scenarios**
 
-- Missing model files (`dataset.json` or `model_info.json`).
-- Pipeline fails due to security vulnerabilities in the model.
-- Reports not generated properly.
 
-## 📝 **Post-Pipeline Execution**
+**Execution Steps**
+Navigate to Jenkins > New Pipeline.
 
-- If the pipeline fails, check the logs for errors.
-- If the pipeline succeeds, review the generated reports.
-- Take necessary actions based on security scan results before promoting the model.
+Enter MODEL_GIT_URL or MODEL_LOCAL_PATH.
 
-### Notes:
+Set USER_EMAIL for dashboard notification (if enabled).
 
-- Ensure that the provided model directory contains valid model files before running the script.
-- The LOCAL_PATH environment variable must be set for successful execution
+Run the pipeline and monitor output in the Jenkins console.
+
+
+**Streamlit Dashboard – Vulnerability Visualisation**
+After report generation, a Streamlit-based dashboard is automatically launched that visualises vulnerabilities using four detailed graphs:
+
+Vulnerabilities by CVSS Severity
+
+Vulnerabilities by CWE (Common Weakness Enumeration)
+
+Time-based Vulnerability Trends (if data available)
+
+Vulnerability Source Comparison: requirements.txt vs. SBOM
+
+
+
+**Email Alert Feature**
+The dashboard includes a text field where users can enter their email address.
+
+On submission, the system sends a detailed report with:
+
+Top 5 Critical Vulnerabilities
+
+A direct suggestion link to AquaSec Vulnerability Advisory
+
+This ensures real-time awareness and actionable insight for developers and security teams.
+
+
+**Success Criteria**
+The model is fetched successfully from Git or local.
+
+Required files (dataset.json, model_info.json) are validated.
+
+Reports (aibom.json, sbom.json, vulnerability.json) are generated.
+
+Streamlit dashboard runs successfully with the email alert feature.
 
