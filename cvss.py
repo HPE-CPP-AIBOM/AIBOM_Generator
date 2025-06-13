@@ -11,7 +11,7 @@ import subprocess
 import os
 
 # -------------------------
-# 📥 Extract for Dashboard
+# Extract for Dashboard
 # -------------------------
 
 def get_git_introduction_date(pkg, version):
@@ -64,7 +64,7 @@ def extract_vulnerability_data(file):
 
 
 # -------------------------
-# 📥 Extract for Email
+#  Extract for Email
 # -------------------------
 def extract_email_data(file):
     file.seek(0)
@@ -93,7 +93,7 @@ def preprocess_data(df):
     return df
 
 # -------------------------
-# 📧 Email Report
+#  Email Report
 # -------------------------
 def send_email(receiver_email, top_vulns):
     EMAIL_ADDRESS = "aibomgenerator@gmail.com"
@@ -130,7 +130,7 @@ def send_email(receiver_email, top_vulns):
         return False
 
 # -------------------------
-# 🚀 Streamlit App
+#  Streamlit App
 # -------------------------
 def main():
     st.title("🛡️ CVE Dashboard + Vulnerability Email Report")
