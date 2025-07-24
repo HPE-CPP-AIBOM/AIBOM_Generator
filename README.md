@@ -6,7 +6,7 @@ It enhances security, traceability, and transparency throughout the AI model lif
 
 
 
-### Pipeline Overview**
+### Pipeline Overview
 
 **Pipeline Stages**
 
@@ -69,7 +69,7 @@ It enhances security, traceability, and transparency throughout the AI model lif
 
 # Setup & Configuration
 
-**Pipeline Parameters**
+# Pipeline Parameters
 
 | Parameter           | Default Value | Description                                                  |
 |---------------------|----------------|--------------------------------------------------------------|
@@ -80,7 +80,7 @@ It enhances security, traceability, and transparency throughout the AI model lif
 
 
 
-**Environment Variables**
+# Environment Variables
 
 | Variable            | Description                                                                 |
 |---------------------|-----------------------------------------------------------------------------|
@@ -92,7 +92,7 @@ It enhances security, traceability, and transparency throughout the AI model lif
 | `USER_EMAIL`        | Email ID to receive vulnerability alerts via the Streamlit dashboard.       |
 
 
-**Required Directory Structure**
+# Required Directory Structure
 
 The MODEL_DIR must contain:
 
@@ -106,7 +106,7 @@ MODEL_DIR/
 
 
 
-**How to Run the Pipeline**
+# How to Run the Pipeline
 
 
 **Prerequisites**
@@ -156,7 +156,7 @@ MODEL_DIR/
     - This ensures real-time awareness and actionable insight for developers and security teams.
 
 
-**Success Criteria**
+# Success Criteria
 
 - The model is fetched successfully from Git or local.
 
