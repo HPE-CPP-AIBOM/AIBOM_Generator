@@ -1,4 +1,4 @@
-**CI/CD Pipeline for AI BOM Generator**
+# CI/CD Pipeline for AI BOM Generator**
 
 This Jenkins CI/CD pipeline automates the complete lifecycle of an **AI-based Bill of Materials (AIBOM)** generation framework. It ensures that AI models are securely fetched, validated, scanned for vulnerabilities, and documented using AIBOM and SBOM reports.
 
@@ -6,70 +6,68 @@ It enhances security, traceability, and transparency throughout the AI model lif
 
 
 
-**Pipeline Overview**
+### Pipeline Overview**
 
 **Pipeline Stages**
 
 
-**1. Build Stage**
+# 1. Build Stage**
 
-Cleans the working model directory (MODEL_DIR) to avoid leftover data.
+- Cleans the working model directory (MODEL_DIR) to avoid leftover data.
 
-Fetches the AI model from either:
+- Fetches the AI model from either:
 
-A GitHub repository (MODEL_GIT_URL), or
+    - A GitHub repository (MODEL_GIT_URL), or
 
-A specified local path (MODEL_LOCAL_PATH).
+    - A specified local path (MODEL_LOCAL_PATH).
 
-Verifies the presence of required files:
+    - Verifies the presence of required files:
 
-dataset.json — dataset metadata.
+    - dataset.json — dataset metadata.
 
-model_info.json — AI model details, training specs, and configurations.
-
-
-
-**2️. Deploy Stage**
-
-Clones the AIBOM generation script from the specified script repository (SCRIPT_REPO).
-
-Copy the script generate_aibom.py into the model directory for execution.
+    - model_info.json — AI model details, training specs, and configurations.
 
 
 
-**3️. Test Stage**
+# 2. Deploy Stage**
 
-Installs Syft to generate SBOM (Software Bill of Materials).
+- Clones the AIBOM generation script from the specified script repository (SCRIPT_REPO).
 
-Installs Trivy for scanning vulnerabilities.
+- Copy the script generate_aibom.py into the model directory for execution.
 
-Executes the AIBOM generation script, which performs:
+# 3. Test Stage**
 
-AIBOM report generation (aibom.json)
+- Installs Syft to generate SBOM (Software Bill of Materials).
 
-SBOM report creation (sbom.json)
+- Installs Trivy for scanning vulnerabilities.
 
-Vulnerability analysis (vulnerability_requirements.json and vulnerability_sbom.json)
+- Executes the AIBOM generation script, which performs:
 
-Merging of vulnerabilities into merged_vulnerabilities.json
+- AIBOM report generation (aibom.json)
 
-Ensures the reports/ folder is created and populated.
+- SBOM report creation (sbom.json)
 
+- Vulnerability analysis (vulnerability_requirements.json and vulnerability_sbom.json)
 
+- Merging of vulnerabilities into merged_vulnerabilities.json
 
-**4️. Promote Stage**
-
-Validates the presence and format of reports.
-
-Parses vulnerability data to ensure no critical issues are present.
-
-Displays generated reports in the Jenkins console for review.
+- Ensures the reports/ folder is created and populated.
 
 
 
+# 4. Promote Stage**
 
-**Setup & Configuration**
+- Validates the presence and format of reports.
 
+- Parses vulnerability data to ensure no critical issues are present.
+
+- Displays generated reports in the Jenkins console for review.
+
+# 5. 
+- Launch the CVSS dashboard to visualize vulnerabilities.
+- The dashboard is accessible at http://localhost:8501.
+
+# Setup & Configuration
 
 **Pipeline Parameters**
 
