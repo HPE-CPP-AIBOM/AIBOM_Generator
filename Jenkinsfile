@@ -72,8 +72,8 @@ pipeline {
 
                     sh '''
                         echo "Checking Syft and Trivy..."
-                        which syft || echo "Syft not found!"
-                        which trivy || echo "Trivy not found!"
+                        D:/HPE_Project/Model/tools/syft.exe packages dir:D:/HPE_Project/Model || echo "Syft not found!"
+                        D:/HPE_Project/Model/tools/trivy.exe image alpine:latest || echo "Trivy not found!"
                     '''
 
                     sh '''
