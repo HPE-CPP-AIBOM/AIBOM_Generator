@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GIT_CREDENTIALS_ID = 'gihub-credentials'
-        MODEL_DIR = 'D:/HPE_Project/Model'
+        MODEL_DIR = 'E:/HPE_Project/Model'
         SCRIPT_REPO = 'https://github.com/Thejashwini005/AIBOM_Project.git'
         REPORT_DIR = "${MODEL_DIR}/reports"
         TOOLS_DIR = "${MODEL_DIR}/tools"
