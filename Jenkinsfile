@@ -77,7 +77,7 @@ pipeline {
                     '''
 
                     sh '''
-                        bat 'python -m pip install streamlit'
+                        pip install streamlit
 
                     '''
 
