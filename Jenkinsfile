@@ -61,7 +61,7 @@ pipeline {
                         echo "Installing Syft..."
                         curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b $TOOLS_DIR
                         echo "Syft installed successfully!"
-                        syft --version
+                        D:/HPE_Project/Model/tools/syft.exe --version
                     '''
 
                     sh '''
