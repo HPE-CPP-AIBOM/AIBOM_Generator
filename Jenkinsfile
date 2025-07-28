@@ -77,7 +77,8 @@ pipeline {
                     '''
 
                     sh '''
-                        pip install streamlit
+                        C:/Users/ADMIN/AppData/Local/Programs/Python/Python310/Scripts/pip.exe install streamlit
+
                     '''
 
                     
