@@ -66,7 +66,7 @@ pipeline {
 
                     sh '''
                         echo "Installing Trivy..."
-                        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b $TOOLS_DIR
+                        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b D:/HPE_Project/Model/tools v0.44.1
                         echo "Trivy installed successfully!"
                     '''
 
