@@ -128,8 +128,7 @@ pipeline {
                     sh "cp ${MODEL_DIR}/script/cvss.py ${MODEL_DIR}/"
                     
                     sh '''
-                        nohup streamlit run ${MODEL_DIR}/cvss.py -- --input ${REPORT_DIR}/vulnerability.json --server.headless true --server.port 8501 --server.enableCORS false > streamlit.log 2>&1 &
-                        sleep 5
+                        python -c "import subprocess; subprocess.Popen(['streamlit', 'run', 'D:/HPE_Project/Model/cvss.py', '--', '--input', 'D:/HPE_Project/Model/reports/vulnerability.json', '--server.headless', 'true', '--server.port', '8501', '--server.enableCORS', 'false'], stdout=open('streamlit.log', 'w'), stderr=subprocess.STDOUT)" sleep 5
                         echo "✅ Streamlit dashboard launched at: http://localhost:8501"
                     '''
                 }
